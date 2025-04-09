@@ -1,6 +1,6 @@
 ![Icon](https://i.imgur.com/3zMGk6c.png)
 # Nomadify
-[![Build status](https://github.com/lvermeulen/Nomadify/actions/workflows/build.yml/badge.svg)
+![Build status](https://github.com/lvermeulen/Nomadify/actions/workflows/build.yml/badge.svg)
 [![license](https://img.shields.io/github/license/lvermeulen/Nomadify.svg?maxAge=2592000)](https://github.com/lvermeulen/Nomadify/blob/master/LICENSE) 
 [![NuGet](https://img.shields.io/nuget/v/Nomadify.svg?maxAge=86400)](https://www.nuget.org/packages/Nomadify/) 
 ![downloads](https://img.shields.io/nuget/dt/Nomadify)
