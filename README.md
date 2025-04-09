@@ -39,4 +39,4 @@ Nomadify uses the [ServiceDiscovery.Nomad](https://github.com/lvermeulen/Service
 
 ## Thanks
 * [Camel](https://thenounproject.com/icon/camel-4192809/) icon by [Slidicon](https://thenounproject.com/creator/slidicon/) from [The Noun Project](https://thenounproject.com)
-* So much thanks to David Sekula, the author of [Aspir8](https://github.com/prom3theu5/aspirational-manifests), which gave me a lot of inspiration (and some code) and convinced me to do "the same" for Hashicorp Nomad
+* So much thanks to [David Sekula](https://github.com/prom3theu5), the author of [Aspir8](https://github.com/prom3theu5/aspirational-manifests), which gave me a lot of inspiration (and quite a bit of code) and convinced me to do "the same" for Hashicorp Nomad
