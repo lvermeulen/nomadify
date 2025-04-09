@@ -37,7 +37,7 @@ public class ApplyDaprAnnotationsAction(IServiceProvider serviceProvider, IAnsiC
         return Task.FromResult(true);
     }
 
-    private static void ApplyDaprAnnotationsToTargetService(Resource serviceForSidecar, DaprResource resource)
+    private static void ApplyDaprAnnotationsToTargetService(Resource? serviceForSidecar, DaprResource resource)
     {
         if (serviceForSidecar is not IResourceWithAnnotations service)
         {

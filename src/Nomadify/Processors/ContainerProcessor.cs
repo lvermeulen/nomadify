@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Threading.Tasks;
 using Nomad.Abstractions.Components;
 using Nomad.Abstractions.Components.V0;
@@ -15,11 +14,6 @@ public class ContainerProcessor(IAnsiConsole console, IProcessRunner processRunn
     : BaseContainerProcessor(console, processRunner)
 {
     public override Resource? Deserialize(ref Utf8JsonReader reader) => JsonSerializer.Deserialize<ContainerResource>(ref reader);
-
-    public override List<object> CreateNomadObjects()
-    {
-        return [];
-    }
 
     public async Task<bool> BuildAndPushContainerForProject(ProjectResource? projectResource, MsBuildContainerProperties containerDetails, ContainerOptions options, string runtimeIdentifier)
     {

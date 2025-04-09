@@ -28,11 +28,6 @@ public sealed class ProjectProcessor(IAnsiConsole console, IProcessRunner proces
 
     public override Resource? Deserialize(ref Utf8JsonReader reader) => JsonSerializer.Deserialize<ProjectResource>(ref reader);
 
-    public override List<object> CreateNomadObjects()
-    {
-        return [];
-    }
-
     public async Task BuildAndPushProjectContainer((string Key, Resource Value) resource, ContainerOptions options, string runtimeIdentifier)
     {
         var project = resource.Value as ProjectResource;

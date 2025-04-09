@@ -20,11 +20,6 @@ public class DockerfileProcessor(IAnsiConsole console, IProcessRunner processRun
 
     public override Resource? Deserialize(ref Utf8JsonReader reader) => JsonSerializer.Deserialize<DockerfileResource>(ref reader);
 
-    public override List<object> CreateNomadObjects()
-    {
-        return [];
-    }
-
     private Task<ProcessRunResult> BuildContainer(DockerfileResource dockerfileResource, string? builder, List<string> tags, string dockerfilePath)
     {
         var argumentBuilder = ArgumentsBuilder

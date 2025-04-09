@@ -12,7 +12,7 @@ public sealed class RuntimeIdentifierOption : BaseOption<string?>
     private RuntimeIdentifierOption() : base(s_aliases, "NOMADIFY_RUNTIME_IDENTIFIER", null)
     {
         Name = nameof(IBuildOptions.RuntimeIdentifier);
-        Description = "The Custom Runtime identifier to use for .net project builds.";
+        Description = "The custom runtime identifier to use for .net project builds.";
         Arity = ArgumentArity.ExactlyOne;
         IsRequired = false;
     }

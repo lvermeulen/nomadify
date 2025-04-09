@@ -7,10 +7,10 @@ namespace Nomad.Abstractions.Components.V0.Dapr;
 public class Metadata
 {
     [JsonPropertyName("application")]
-    public string Application { get; set; } = default!;
+    public string? Application { get; set; }
 
     [JsonPropertyName("appId")]
-    public string AppId { get; set; } = default!;
+    public string? AppId { get; set; }
 
     [JsonPropertyName("components")]
     public List<string>? Components { get; set; }

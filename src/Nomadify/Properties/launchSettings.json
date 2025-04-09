@@ -7,7 +7,7 @@
     },
     "generate": {
       "commandName": "Project",
-      "commandLineArgs": "generate --project-path C:\\iorepo\\DifaTemplate\\src\\Weather.AppHost",
+      "commandLineArgs": "generate --project-path C:\\iorepo\\DifaTemplate\\src\\Weather.AppHost --aspire-manifest C:\\iorepo\\DifaTemplate\\src\\Weather.AppHost\\manifest.json",
       "workingDirectory": "C:\\iorepo\\DifaTemplate\\src\\Weather.AppHost"
     }
   }
