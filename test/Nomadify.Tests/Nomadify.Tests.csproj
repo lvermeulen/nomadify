@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\nomadify\Nomadify.csproj" />
+    <ProjectReference Include="..\..\src\Nomadify\Nomadify.csproj" />
   </ItemGroup>
 
   <ItemGroup>
