@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  release:
+
+    runs-on: ubuntu-latest
+
+    env:
+      Solution_Name: Nomadify
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    # Install GitVersion
+    - name: Install GitVersion
+      run: dotnet tool update GitVersion.Tool --global --version 5.*
+
+    # Restore
+    - name: Restore
+      run: dotnet restore
+
+    # GitVersion
+    - name: Determine Version
+      run: dotnet gitversion -updateprojectfiles
+      
+    # Build
+    - name: Build
+      run: dotnet build --configuration Release --nologo --no-restore
+
+    # Upload
+    - name: Upload
+      run: dotnet nuget push src/Nomadify/bin/Release/*.nupkg --source nuget --api-key ${{ secrets.NUGETAPIKEY }} --skip-duplicate
+      
