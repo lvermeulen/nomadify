@@ -10,29 +10,32 @@ using Nomadify.Extensions;
 
 namespace Nomadify.Processors;
 
-public sealed class ResourceExpressionProcessor(IJsonExpressionProcessor jsonExpressionProcessor) : IResourceExpressionProcessor
+public sealed class ResourceExpressionProcessor(JsonExpressionProcessor jsonExpressionProcessor)
 {
-    public void ProcessEvaluations(Dictionary<string, Resource>? resources)
+    public (int numberOfBindings, int numberOfSubstitutions) ProcessEvaluations(Dictionary<string, Resource>? resources)
     {
-        resources?.EnsureBindingsHavePorts();
+        // bindings
+        var numberOfBindings = resources?.EnsureBindingsHavePorts();
 
+        // substitutions
         var jsonDocument = resources?.Where(r => r.Value is not UnsupportedResource)
             .ToDictionary(p => p.Key, p => p.Value)
             .TryParseAsJsonNode();
-
         var rootNode = jsonDocument?.Root;
-
         jsonExpressionProcessor.ResolveJsonExpressions(rootNode, rootNode);
+        var numberOfSubstitutions = HandleSubstitutions(resources, rootNode);
 
-        HandleSubstitutions(resources, rootNode);
+        return (numberOfBindings.GetValueOrDefault(), numberOfSubstitutions);
     }
 
-    private static void HandleSubstitutions(Dictionary<string, Resource>? resources, JsonNode? rootNode)
+    private static int HandleSubstitutions(Dictionary<string, Resource>? resources, JsonNode? rootNode)
     {
         if (resources is null || rootNode is null)
         {
-            return;
+            return 0;
         }
+
+        var counter = 0;
 
         foreach (var (key, value) in resources)
         {
@@ -40,17 +43,21 @@ public sealed class ResourceExpressionProcessor(IJsonExpressionProcessor jsonExp
             {
                 case IResourceWithConnectionString resourceWithConnectionString when !string.IsNullOrEmpty(resourceWithConnectionString.ConnectionString):
                     resourceWithConnectionString.ConnectionString = rootNode[key]![NomadifyConstants.ConnectionString]!.ToString();
+                    counter++;
                     break;
                 case ValueResource valueResource:
                 {
                     foreach (var resourceValue in valueResource.Values.Select(x => x.Key))
                     {
                         valueResource.Values[resourceValue] = rootNode[key]![resourceValue]!.ToString();
+                        counter++;
                     }
 
                     break;
                 }
             }
         }
+
+        return counter;
     }
 }

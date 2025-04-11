@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Nomad.Abstractions.Components;
-using Nomad.Abstractions.Components.V0.Dapr;
 using Nomadify.Execution;
 using Nomadify.Execution.Exceptions;
 using Nomadify.Extensions;
@@ -54,16 +53,11 @@ public class BuildAndPublishRawExecAction(IServiceProvider serviceProvider, IAns
 
         if (CurrentState.HasDapr())
         {
-            Logger.MarkupLine("[bold]Building and publishing raw exec projects for implicit Dapr components[/]");
-            foreach (var resource in CurrentState.DaprRawExecProjectComponents.Where(x => x.Value!.Type.Equals(NomadifyConstants.Dapr, StringComparison.OrdinalIgnoreCase)))
+            Logger.MarkupLine("[bold]Generating files for Dapr components[/]");
+            foreach (var resourceValue in CurrentState.DaprComponents.Where(x => x.Value is not null).Select(x => x.Value))
             {
-                if (resource.Value is DaprResource)
-                {
-                    var publishFolder = await projectProcessor.PublishProject(resource!, CurrentState);
-                    await ProjectProcessor.HandleCompression(resource!, CurrentState, publishFolder);
-
-                    console.MarkupLine($"[green]({NomadifyConstants.CheckMark}) Done: [/] Building and publishing Dapr project [blue]{resource.Key}[/]");
-                }
+                await DaprComponentProcessor.CreateDaprTemplateAsync(resourceValue, CurrentState.OutputPath!);
+                Logger.MarkupLine($"[green]({NomadifyConstants.CheckMark}) Done:[/] Generated {CurrentState.OutputPath}/dapr/{resourceValue!.Name}.yaml");
             }
         }
 

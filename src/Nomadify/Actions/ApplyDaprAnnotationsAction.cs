@@ -16,7 +16,7 @@ public class ApplyDaprAnnotationsAction(IServiceProvider serviceProvider, IAnsiC
     {
         Logger.WriteRuler("[purple]Handling Dapr Components[/]");
 
-        var daprComponents = CurrentState.DaprRawExecProjectComponents.ToList();
+        var daprComponents = CurrentState.DaprProjects.ToList();
         if (daprComponents.Count == 0)
         {
             console.WriteLine("No components selected, skipping Dapr annotations.");

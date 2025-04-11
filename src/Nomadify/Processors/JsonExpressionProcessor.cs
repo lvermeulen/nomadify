@@ -10,7 +10,7 @@ using Nomadify.Extensions;
 
 namespace Nomadify.Processors;
 
-public sealed class JsonExpressionProcessor(IBindingProcessor bindingProcessor) : IJsonExpressionProcessor
+public sealed class JsonExpressionProcessor
 {
     private readonly ICollection<string?> _unresolvedExpressionPointers = [];
 
@@ -119,7 +119,7 @@ public sealed class JsonExpressionProcessor(IBindingProcessor bindingProcessor) 
 
             if (pathParts is [_, NomadifyConstants.Bindings, ..])
             {
-                input = bindingProcessor.HandleBindingReplacement(rootNode, pathParts, input, jsonPath);
+                input = BindingProcessor.HandleBindingReplacement(rootNode, pathParts, input, jsonPath);
                 continue;
             }
 

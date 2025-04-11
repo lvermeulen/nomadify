@@ -8,12 +8,13 @@ namespace Nomadify.Extensions;
 
 public static class ResourceExtensions
 {
-    public static void EnsureBindingsHavePorts(this Dictionary<string, Resource> resources)
+    public static int EnsureBindingsHavePorts(this Dictionary<string, Resource> resources)
     {
+        var counter = 0;
+
         foreach (var resource in resources.Where(x => x.Value is IResourceWithBinding { Bindings: not null }))
         {
-            var bindingResource = resource.Value as IResourceWithBinding;
-            if (bindingResource is null || bindingResource.Bindings is null)
+            if (resource.Value is not IResourceWithBinding bindingResource || bindingResource.Bindings is null)
             {
                 continue;
             }
@@ -23,13 +24,17 @@ public static class ResourceExtensions
                 if (binding.Key.Equals("http", StringComparison.OrdinalIgnoreCase) && binding.Value.TargetPort is 0 or null)
                 {
                     binding.Value.TargetPort = 8081;
+                    counter++;
                 }
 
                 if (binding.Key.Equals("https", StringComparison.OrdinalIgnoreCase) && binding.Value.TargetPort is 0 or null)
                 {
                     binding.Value.TargetPort = 8443;
+                    counter++;
                 }
             }
         }
+
+        return counter;
     }
 }

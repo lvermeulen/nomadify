@@ -1,6 +1,6 @@
 ﻿namespace Nomad.JobGenerator;
 
-internal static class Templates
+public static class Templates
 {
     public const string AspireDashboardTaskTemplate =
         """
@@ -46,38 +46,48 @@ internal static class Templates
     public const string DaprdTaskTemplate =
         """
         ﻿{{=<% %>=}}
-        task "daprd" {
-          driver = "docker"
-        
-          config {
-        	image   = "daprio/daprd:1.15.4-linux-arm64"
-        	ports   = [ "http-daprd", "http-daprd-grpc", "http-daprd-rpc" ]
-        	command = "daprd"
-        	args = [
-        	  "-app-id", "<%JobServiceName%>",
-        	  "-app-port", "${NOMAD_PORT_http_daprd}",
-        	  "-app-protocol", "grpc",
-        	  "-dapr-internal-grpc-port", "${NOMAD_PORT_http_daprd_rpc}",
-        	  "-config", "local/.dapr/config.yaml",
-        	  "-components-path", "local/.dapr/components",
-        	]
+          task "daprd" {
+            driver = "docker"
+          
+            config {
+          	image   = "daprio/daprd:1.15.4-linux-arm64"
+          	ports   = [ "http-daprd", "http-daprd-grpc", "http-daprd-rpc" ]
+          	command = "./daprd"
+          	args = [
+          	  "-app-id", "<%JobServiceName%>",
+          	  "-app-port", "${NOMAD_PORT_http_daprd}",
+          	  "-app-protocol", "grpc",
+          	  "-dapr-internal-grpc-port", "${NOMAD_PORT_http_daprd_rpc}",
+          	  "-config", "local/.dapr/config.yaml",
+          	  "-resources-path", "local/.dapr/components",
+          	]
+            }
+          
+            <! templates !>
+          
+            resources {
+          	memory     = 30
+            }
           }
+        """;
+
+    public const string DaprdConfigYamlTemplate =
+        """
+        template {
+          data = <<EOF
+          apiVersion: dapr.io/v1alpha1
+          kind: Configuration
+          metadata:
+            name: daprConfig
+          spec:
+            tracing:
+              samplingRate: "1"
+              zipkin:
+                endpointAddress: http://localhost:9411/api/v2/spans	
+        EOF
         
-          template {
-            data        = "{{ key \"dapr/config.yaml\"}}"
             destination = "local/.dapr/config.yaml"
           }
-          
-          template {
-            data        = "{{ key \"dapr/components/redis.yaml\"}}"
-            destination = "local/.dapr/components/redis.yaml"
-          }
-        
-          resources {
-        	memory     = 30
-        	#memory_max = 50
-          }
-        }
         """;
 
     public const string TaskTemplate =
@@ -180,5 +190,29 @@ internal static class Templates
             <! tasks !>
           }
 
+        """;
+
+    public const string DaprComponentTemplate =
+        """
+        ﻿{{=<% %>=}}
+        apiVersion: dapr.io/v1alpha1
+        kind: Component
+        metadata:
+          name: <%name%>
+          labels:
+            app: <%name%>
+        spec:
+          type: <%type%>
+          version: <%version%>
+        <%#emptyMetadata%>
+          metadata: []
+        <%/emptyMetadata%>
+        <%#hasMetadata%>
+          metadata:
+          <%#metadata%>
+            - name: <%Key%>
+              value: <%Value%>
+          <%/metadata%>
+        <%/hasMetadata%>
         """;
 }

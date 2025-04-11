@@ -21,7 +21,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nomadify.Tests", "test\Noma
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
 Global
@@ -65,6 +72,7 @@ Global
 		{F4312C4C-07E4-4C05-853B-48FE5D2E652C} = {DF9E6BBA-3D77-42FD-AF6A-5491F8D12C69}
 		{49220FF1-F881-4409-9685-2BC3074CEF37} = {DF9E6BBA-3D77-42FD-AF6A-5491F8D12C69}
 		{9E19AAD2-CF49-F09B-5B76-72F85EADF38C} = {E32CF48A-4966-4BDA-81B8-FA2102125F85}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD400475-27C0-4020-A4DD-0086B281D74B}

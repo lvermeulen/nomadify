@@ -85,14 +85,11 @@ public static class ServiceCollectionExtensions
         .RegisterProcessor<DaprProcessor>(NomadifyConstants.Dapr)
         .RegisterProcessor<DaprComponentProcessor>(NomadifyConstants.DaprComponent)
         .RegisterProcessor<DockerfileProcessor>(NomadifyConstants.Dockerfile)
-        .RegisterProcessor<ContainerProcessor>(NomadifyConstants.Container)
-        .RegisterProcessor<ParameterProcessor>(NomadifyConstants.Parameter)
-        .RegisterProcessor<ValueProcessor>(NomadifyConstants.Value);
+        .RegisterProcessor<ContainerProcessor>(NomadifyConstants.Container);
 
     private static IServiceCollection AddPlaceholderTransformation(this IServiceCollection services) => services
-        .AddSingleton<IResourceExpressionProcessor, ResourceExpressionProcessor>()
-        .AddSingleton<IJsonExpressionProcessor, JsonExpressionProcessor>()
-        .AddSingleton<IBindingProcessor, BindingProcessor>();
+        .AddSingleton<ResourceExpressionProcessor>()
+        .AddSingleton<JsonExpressionProcessor>();
 
 
     private static IServiceCollection RegisterProcessor<TImplementation>(this IServiceCollection services, string key)

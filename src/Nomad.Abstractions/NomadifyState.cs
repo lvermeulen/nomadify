@@ -109,7 +109,7 @@ public class NomadifyState
     public bool UseAllPreviousStateValues { get; set; }
 
     [JsonIgnore]
-    public List<string> AspireComponentsToProcess => DaprRawExecProjectComponents
+    public List<string> AspireComponentsToProcess => DaprProjectComponents
         .Union(SelectedRawExecProjectComponents)
         .Union(SelectedDockerProjectComponents)
         .Union(SelectedDockerfileProjectComponents)
@@ -117,9 +117,20 @@ public class NomadifyState
         .ToList();
 
     [JsonIgnore]
-    public List<(string Key, Resource? Value)> DaprRawExecProjectComponents => LoadedAspireManifestResources
-        .Where(x => x.Value.Type.Equals(NomadifyConstants.Dapr, StringComparison.OrdinalIgnoreCase)
-            || x.Value.Type.Equals(NomadifyConstants.DaprComponent, StringComparison.OrdinalIgnoreCase))
+    public List<(string Key, Resource? Value)> DaprProjects => LoadedAspireManifestResources
+        .Where(x => x.Value.Type.Equals(NomadifyConstants.Dapr, StringComparison.OrdinalIgnoreCase))
+        .Select(x => (x.Key, x.Value))
+        .ToList();
+
+    [JsonIgnore]
+    public List<(string Key, Resource? Value)> DaprComponents => LoadedAspireManifestResources
+        .Where(x => x.Value.Type.Equals(NomadifyConstants.DaprComponent, StringComparison.OrdinalIgnoreCase))
+        .Select(x => (x.Key, x.Value))
+        .ToList();
+
+    [JsonIgnore]
+    public List<(string Key, Resource? Value)> DaprProjectComponents => DaprProjects
+        .Union(DaprComponents)
         .Select(x => (x.Key, x.Value))
         .ToList();
 
@@ -147,5 +158,5 @@ public class NomadifyState
         .Select(x => (x.Key, x.Value))
         .ToList();
 
-    public bool HasDapr() => DaprRawExecProjectComponents.Count > 0;
+    public bool HasDapr() => DaprProjectComponents.Count > 0;
 }

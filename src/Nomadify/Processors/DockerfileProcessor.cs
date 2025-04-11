@@ -16,7 +16,7 @@ namespace Nomadify.Processors;
 public class DockerfileProcessor(IAnsiConsole console, IProcessRunner processRunner) 
     : BaseContainerProcessor(console, processRunner)
 {
-    private readonly Dictionary<string, List<string>> _containerImageCache = [];
+    private readonly Dictionary<string, List<string>> _containerImageCache = []; //TODO: get rid of this?
 
     public override Resource? Deserialize(ref Utf8JsonReader reader) => JsonSerializer.Deserialize<DockerfileResource>(ref reader);
 

@@ -32,13 +32,13 @@ public class LoadAspireManifestAction(IManifestFileParserService manifestFilePar
             return;
         }
 
-        var implicitRawExecComponents = CurrentState.DaprRawExecProjectComponents.Select(x => x.Key).ToList();
-        if (implicitRawExecComponents.Count > 0)
+        var daprRawExecComponents = CurrentState.DaprProjectComponents.Select(x => x.Key).ToList();
+        if (daprRawExecComponents.Count > 0)
         {
-            Logger.MarkupLine("Implicit raw exec components are present.");
+            Logger.MarkupLine("Dapr components are present.");
         }
 
-        var rawExecComponents = SelectRawExecItems(implicitRawExecComponents).Union(CurrentState.DaprRawExecProjectComponents.Select(x => x.Key)).ToList();
+        var rawExecComponents = SelectRawExecItems(daprRawExecComponents).Union(CurrentState.DaprProjectComponents.Select(x => x.Key)).ToList();
         if (rawExecComponents.Count == CurrentState.LoadedAspireManifestResources.Count)
         {
             Logger.MarkupLine("Raw exec components are all components in the loaded file. Skipping selection of docker and dockerfile components...");

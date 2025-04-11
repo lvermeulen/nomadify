@@ -39,7 +39,7 @@ public sealed class ApplyJobToClusterAction(INomadExecutionService nomadExecutio
 
     public async Task<bool> PerformStart(string outputFolder)
     {
-        var tasks = GenerateTaskTemplates();
+        var tasks = await GenerateTaskTemplatesAsync();
 
         var result = await RunTasks(outputFolder, tasks);
         if (result)
@@ -89,7 +89,7 @@ public sealed class ApplyJobToClusterAction(INomadExecutionService nomadExecutio
         return await nomadExecutionService.RunJobAsync(jobFileName, CurrentState.NomadUrl!);
     }
 
-    private Dictionary<string, ITaskTemplate> GenerateTaskTemplates()
+    private async Task<Dictionary<string, ITaskTemplate>> GenerateTaskTemplatesAsync()
     {
         if (Services.GetRequiredKeyedService<IResourceProcessor>(NomadifyConstants.Project) is not ProjectProcessor)
         {
@@ -98,10 +98,10 @@ public sealed class ApplyJobToClusterAction(INomadExecutionService nomadExecutio
 
         var result = new Dictionary<string, ITaskTemplate>();
 
-        //TODO: Dapr/DaprComponent
-        foreach (var resource in CurrentState.DaprRawExecProjectComponents.Where(x => x.Value is not null && x.Value.Type.Equals(NomadifyConstants.Dapr, StringComparison.OrdinalIgnoreCase)))
+        foreach (var resource in CurrentState.DaprProjectComponents.Where(x => x.Value is not null && x.Value.Type.Equals(NomadifyConstants.DaprComponent, StringComparison.OrdinalIgnoreCase)))
         {
-            //result.Add(resource.Key, ProjectProcessor.CreateNomadRawExecTaskTemplate(resource, CurrentState)); //TODO: decide whether to deploy or not
+            //TODO: implement?
+            //Logger.MarkupLine($"[red]({NomadifyConstants.Warning}) This is where we handle Dapr component {resource.Key} in the tasks's template section.[/]");
         }
 
         foreach (var resource in CurrentState.SelectedRawExecProjectComponents.Where(x => x.Value is not null))

@@ -7,12 +7,12 @@ using Nomad.Abstractions.Components.V0;
 
 namespace Nomadify.Processors;
 
-public sealed class BindingProcessor : IBindingProcessor
+public static class BindingProcessor
 {
     private const int DefaultServicePort = 10000;
     private static int s_servicePort = DefaultServicePort;
 
-    public string HandleBindingReplacement(JsonNode? rootNode, IReadOnlyList<string> pathParts, string input, string jsonPath)
+    public static string HandleBindingReplacement(JsonNode? rootNode, IReadOnlyList<string> pathParts, string input, string jsonPath)
     {
         var resourceName = pathParts[0];
         var bindingName = pathParts[2];

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Abstractions;
+using Nomad.Abstractions.Components.V0.Dapr;
 using Stubble.Core;
 using Stubble.Core.Builders;
 using Stubble.Core.Helpers;
@@ -44,11 +46,7 @@ public static class JobFileGenerator
 
         if (options.HasDapr())
         {
-            var optionsMap = options.ToKeyValues().MergeLeft(options.DefaultValues
-                .Select(item => (item.Key, item.Value))
-                .WithCorrectedBooleanValues()
-                .ToDictionary());
-            tasks.Add(await stubble.RenderAsync(Templates.DaprdTaskTemplate, optionsMap));
+            tasks.Add(await GenerateDaprTask(options, stubble, cancellationToken));
         }
 
         if (options.State.IncludeDashboard == true)
@@ -61,6 +59,51 @@ public static class JobFileGenerator
         }
 
         return s.Replace("<! tasks !>", string.Join("", tasks));
+    }
+
+    private static async Task<string> GenerateDaprTask(IJobFileGeneratorOptions options, StubbleVisitorRenderer stubble, CancellationToken cancellationToken)
+    {
+        var optionsMap = options.ToKeyValues().MergeLeft(options.DefaultValues
+            .Select(item => (item.Key, item.Value))
+            .WithCorrectedBooleanValues()
+            .ToDictionary());
+        var result = await stubble.RenderAsync(Templates.DaprdTaskTemplate, optionsMap);
+        result = result.Replace("<! templates !>", await GenerateTemplates(options, cancellationToken));
+
+        return result;
+    }
+
+    private static async Task<string?> GenerateTemplates(IJobFileGeneratorOptions options, CancellationToken cancellationToken)
+    {
+        var results = new List<string>
+        {
+            Templates.DaprdConfigYamlTemplate
+        };
+
+        // generate component yaml files
+        foreach (var resource in options.State.DaprComponents)
+        {
+            var daprComponent = resource.Value as DaprComponentResource;
+            if (daprComponent?.DaprComponentProperty is null)
+            {
+                continue;
+            }
+
+            var daprFilename = $"{daprComponent.Name}.yaml";
+            var file = Path.Combine(options.State.OutputPath, "dapr", daprFilename);
+            var contents = await File.ReadAllTextAsync(file, cancellationToken);
+
+            results.Add(@$"
+  template {{
+    data        = <<EOF
+{contents}
+EOF
+
+    destination = ""local/.dapr/components/{daprFilename}""
+  }}");
+        }
+
+        return string.Join("\n", results);
     }
 
     private static IEnumerable<string> GeneratePorts(IJobFileGeneratorOptions options)

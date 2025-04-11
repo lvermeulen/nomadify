@@ -16,7 +16,7 @@ public sealed class PopulateInputsAction(IServiceProvider serviceProvider) : Bas
     {
         Logger.WriteRuler("[purple]Handling inputs[/]");
 
-        var parameterResources = CurrentState.LoadedAspireManifestResources?.Where(x => x.Value is ParameterResource).ToArray()
+        var parameterResources = CurrentState.LoadedAspireManifestResources?.Where(x => x.Value is ParameterResource)
             .Select(item => (item.Key, item.Value))
             .ToList();
         if (parameterResources?.Count == 0)
