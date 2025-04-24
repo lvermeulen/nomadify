@@ -4,9 +4,7 @@ public static class Templates
 {
     public const string AspireDashboardTaskTemplate =
         """
-        ﻿{{=<% %>=}}
-        
-        task "aspire-dashboard" {
+        ﻿{{=<% %>=}}task "aspire-dashboard" {
           driver = "docker"
     
           config {
@@ -43,24 +41,29 @@ public static class Templates
 
         """;
 
-    public const string DaprdTaskTemplate =
+    public const string DaprdSidecarTemplate =
         """
         ﻿{{=<% %>=}}
-          task "daprd" {
+        task "daprd-<%DaprComponentResourceName%>" {
             driver = "docker"
           
             config {
-          	image   = "daprio/daprd:1.15.4-linux-arm64"
-          	ports   = [ "http-daprd", "http-daprd-grpc", "http-daprd-rpc" ]
-          	command = "./daprd"
-          	args = [
-          	  "-app-id", "<%JobServiceName%>",
-          	  "-app-port", "${NOMAD_PORT_http_daprd}",
-          	  "-app-protocol", "grpc",
-          	  "-dapr-internal-grpc-port", "${NOMAD_PORT_http_daprd_rpc}",
-          	  "-config", "local/.dapr/config.yaml",
-          	  "-resources-path", "local/.dapr/components",
-          	]
+          	  image   = "daprio/daprd:1.15.4-linux-arm64"
+          	  ports   = [ "http-daprd-<%DaprComponentResourceName%>", "http-daprd-grpc-<%DaprComponentResourceName%>", "http-daprd-http-<%DaprComponentResourceName%>", "http-daprd-metrics-<%DaprComponentResourceName%>" ]
+          	  command = "./daprd"
+          	  args = [
+          	    "-app-id", "<%DaprComponentResourceName%>",
+          	    "-app-port", "${NOMAD_PORT_http_daprd_<%DaprComponentResourceName%>}",
+          	    "--dapr-grpc-port", "${NOMAD_PORT_http_daprd_grpc_<%DaprComponentResourceName%>}",
+          	    "--dapr-http-port", "${NOMAD_PORT_http_daprd_http_<%DaprComponentResourceName%>}",
+          	    "--metrics-port", "${NOMAD_PORT_http_daprd_metrics_<%DaprComponentResourceName%>}",
+          	    "--app-channel-address", "192.168.1.34",
+          	    "--app-protocol", "http",
+          	    #"-app-protocol", "grpc",
+          	    #"-dapr-internal-grpc-port", "${NOMAD_PORT_http_daprd_rpc}",
+          	    "-config", "local/.dapr/config.yaml",
+          	    "-resources-path", "local/.dapr/components/",
+          	  ]
             }
           
             <! templates !>
@@ -73,7 +76,7 @@ public static class Templates
 
     public const string DaprdConfigYamlTemplate =
         """
-        template {
+        ﻿{{=<% %>=}}template {
           data = <<EOF
           apiVersion: dapr.io/v1alpha1
           kind: Configuration
@@ -83,7 +86,7 @@ public static class Templates
             tracing:
               samplingRate: "1"
               zipkin:
-                endpointAddress: http://localhost:9411/api/v2/spans	
+                endpointAddress: http://${NOMAD_ADDR_http_daprd_<%DaprComponentResourceName%>}:9411/api/v2/spans	
         EOF
         
             destination = "local/.dapr/config.yaml"
@@ -92,8 +95,7 @@ public static class Templates
 
     public const string TaskTemplate =
         """
-        ﻿{{=<% %>=}}
-            task "<%GroupServiceName%>" {
+        ﻿{{=<% %>=}}  task "<%GroupServiceName%>" {
               driver = "<%GroupTaskDriver%>"
         
               artifact {
@@ -147,8 +149,7 @@ public static class Templates
 
     public const string JobTemplate =
         """
-        ﻿{{=<% %>=}}
-        job "<%JobServiceName%>" {
+        ﻿{{=<% %>=}}job "<%JobServiceName%>" {
 
           datacenters = ["<%JobDatacenter%>"]
           type        = "<%JobType%>"
@@ -194,25 +195,22 @@ public static class Templates
 
     public const string DaprComponentTemplate =
         """
-        ﻿{{=<% %>=}}
-        apiVersion: dapr.io/v1alpha1
+        ﻿{{=<% %>=}}apiVersion: dapr.io/v1alpha1
         kind: Component
         metadata:
           name: <%name%>
-          labels:
-            app: <%name%>
         spec:
-          type: <%type%>
+          type: <%type%>.redis
           version: <%version%>
         <%#emptyMetadata%>
           metadata: []
         <%/emptyMetadata%>
         <%#hasMetadata%>
           metadata:
-          <%#metadata%>
-            - name: <%Key%>
-              value: <%Value%>
-          <%/metadata%>
+          <%#metadata.GetEnumerator%>
+          - name: <%Key%>
+            value: <%#Value%><%Value%><%/Value%><%^Value%>""<%/Value%>
+          <%/metadata.GetEnumerator%>
         <%/hasMetadata%>
         """;
 }

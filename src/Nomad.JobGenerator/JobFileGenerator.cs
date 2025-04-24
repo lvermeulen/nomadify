@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Abstractions;
+using Nomad.Abstractions.Components.V0;
 using Nomad.Abstractions.Components.V0.Dapr;
 using Stubble.Core;
 using Stubble.Core.Builders;
@@ -16,13 +17,11 @@ public static class JobFileGenerator
 {
     public static async Task<string> GenerateJobAsync(IJobFileGeneratorOptions options, CancellationToken cancellationToken = default)
     {
-        var optionsMap = options.ToKeyValues().MergeLeft(options.DefaultValues
+        var stubble = new StubbleBuilder().Build();
+        var result = await stubble.RenderAsync(Templates.JobTemplate, options.ToKeyValues().MergeLeft(options.DefaultValues
             .Select(item => (item.Key, item.Value))
             .WithCorrectedBooleanValues()
-            .ToDictionary());
-
-        var stubble = new StubbleBuilder().Build();
-        var result = await stubble.RenderAsync(Templates.JobTemplate, optionsMap);
+            .ToDictionary()));
 
         result = InsertPorts(result, options);
         result = await InsertTasks(result, options, stubble, cancellationToken);
@@ -46,7 +45,10 @@ public static class JobFileGenerator
 
         if (options.HasDapr())
         {
-            tasks.Add(await GenerateDaprTask(options, stubble, cancellationToken));
+            foreach (var daprComponent in options.State.DaprComponents)
+            {
+                tasks.Add(await GenerateDaprTask(daprComponent.Value, options, stubble, cancellationToken));
+            }
         }
 
         if (options.State.IncludeDashboard == true)
@@ -61,39 +63,45 @@ public static class JobFileGenerator
         return s.Replace("<! tasks !>", string.Join("", tasks));
     }
 
-    private static async Task<string> GenerateDaprTask(IJobFileGeneratorOptions options, StubbleVisitorRenderer stubble, CancellationToken cancellationToken)
+    private static async Task<string> GenerateDaprTask(Resource? resource, IJobFileGeneratorOptions options, StubbleVisitorRenderer stubble, CancellationToken cancellationToken)
     {
-        var optionsMap = options.ToKeyValues().MergeLeft(options.DefaultValues
+        if (resource is not DaprComponentResource daprComponent)
+        {
+            return string.Empty;
+        }
+
+        var map = options.ToKeyValues();
+        map["DaprComponentResourceName"] = daprComponent.Name;
+        var optionsMap = map.MergeLeft(options.DefaultValues
             .Select(item => (item.Key, item.Value))
             .WithCorrectedBooleanValues()
             .ToDictionary());
-        var result = await stubble.RenderAsync(Templates.DaprdTaskTemplate, optionsMap);
-        result = result.Replace("<! templates !>", await GenerateTemplates(options, cancellationToken));
+        var result = await stubble.RenderAsync(Templates.DaprdSidecarTemplate, optionsMap);
+        result = result.Replace("<! templates !>", await GenerateDaprdTemplates(options, optionsMap, cancellationToken));
 
         return result;
     }
 
-    private static async Task<string?> GenerateTemplates(IJobFileGeneratorOptions options, CancellationToken cancellationToken)
+    private static async Task<string?> GenerateDaprdTemplates(IJobFileGeneratorOptions options, Dictionary<string, object>? optionsMap, CancellationToken cancellationToken)
     {
+        var stubble = new StubbleBuilder().Build();
+        var result = await stubble.RenderAsync(Templates.DaprdConfigYamlTemplate, optionsMap);
+
         var results = new List<string>
         {
-            Templates.DaprdConfigYamlTemplate
+            result
         };
 
         // generate component yaml files
         foreach (var resource in options.State.DaprComponents)
         {
-            var daprComponent = resource.Value as DaprComponentResource;
-            if (daprComponent?.DaprComponentProperty is null)
+            if (resource.Value is DaprComponentResource daprComponent)
             {
-                continue;
-            }
+                var daprFilename = $"{daprComponent.Name}.yaml";
+                var file = Path.Combine(options.State.OutputPath ?? string.Empty, "dapr", daprFilename);
+                var contents = await File.ReadAllTextAsync(file, cancellationToken);
 
-            var daprFilename = $"{daprComponent.Name}.yaml";
-            var file = Path.Combine(options.State.OutputPath, "dapr", daprFilename);
-            var contents = await File.ReadAllTextAsync(file, cancellationToken);
-
-            results.Add(@$"
+                results.Add(@$"
   template {{
     data        = <<EOF
 {contents}
@@ -101,6 +109,7 @@ EOF
 
     destination = ""local/.dapr/components/{daprFilename}""
   }}");
+            }
         }
 
         return string.Join("\n", results);
@@ -109,18 +118,28 @@ EOF
     private static IEnumerable<string> GeneratePorts(IJobFileGeneratorOptions options)
     {
         var result = options.TaskTemplates.Keys;
+        
+        // generate task ports
         var results = result.Select(x => $"port \"http-{x}\" {{}}\nport \"https-{x}\" {{}}").ToList();
 
         if (options.HasDapr())
         {
-            results.Add("port \"http-daprd\" {}");
-            results.Add("port \"http-daprd-app\" {}");
-            results.Add("port \"http-daprd-grpc\" {}");
-            results.Add("port \"http-daprd-rpc\" {}");
+            // generate Dapr ports
+            foreach (var daprComponent in options.State.DaprComponents)
+            {
+                if (daprComponent.Value is DaprComponentResource daprComponentResource)
+                {
+                    results.Add($"port \"http-daprd-{daprComponentResource.Name}\" {{}}");
+                    results.Add($"port \"http-daprd-grpc-{daprComponentResource.Name}\" {{}}");
+                    results.Add($"port \"http-daprd-http-{daprComponentResource.Name}\" {{}}");
+                    results.Add($"port \"http-daprd-metrics-{daprComponentResource.Name}\" {{}}");
+                }
+            }
         }
 
         if (options.State.IncludeDashboard == true)
         {
+            // generate Aspire dashboard ports
             results.Add("port \"http-opentelemetry\" { to = 4317 }");
             results.Add("port \"http-aspire-dashboard\" { to = 18888 }");
         }

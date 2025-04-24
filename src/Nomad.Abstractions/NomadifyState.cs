@@ -1,9 +1,9 @@
-﻿using System;
-using Nomad.Abstractions.Components;
+﻿using Nomad.Abstractions.Components;
 using Nomad.Abstractions.Components.V0;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using Nomad.Abstractions.Components.V0.Dapr;
 
 namespace Nomad.Abstractions;
 
@@ -118,13 +118,13 @@ public class NomadifyState
 
     [JsonIgnore]
     public List<(string Key, Resource? Value)> DaprProjects => LoadedAspireManifestResources
-        .Where(x => x.Value.Type.Equals(NomadifyConstants.Dapr, StringComparison.OrdinalIgnoreCase))
+        .Where(x => x.Value is DaprResource && AspireRawExecComponentsToProcess.Contains(x.Key))
         .Select(x => (x.Key, x.Value))
         .ToList();
 
     [JsonIgnore]
     public List<(string Key, Resource? Value)> DaprComponents => LoadedAspireManifestResources
-        .Where(x => x.Value.Type.Equals(NomadifyConstants.DaprComponent, StringComparison.OrdinalIgnoreCase))
+        .Where(x => x.Value is DaprComponentResource)
         .Select(x => (x.Key, x.Value))
         .ToList();
 

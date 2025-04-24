@@ -46,6 +46,26 @@ public sealed class DaprComponentTemplateData
         return this;
     }
 
+    public DaprComponentTemplateData WithMetadata(string key, string value)
+    {
+        Metadata ??= [];
+
+        if (Metadata.TryAdd(key, value))
+        {
+            if (Metadata is null || Metadata.Count == 0)
+            {
+                EmptyMetadata = true;
+                HasMetadata = false;
+                return this;
+            }
+
+            HasMetadata = true;
+            EmptyMetadata = false;
+        }
+
+        return this;
+    }
+
     public Dictionary<string, object> ToKeyValues() => new()
     {
         ["name"] = Name ?? string.Empty,

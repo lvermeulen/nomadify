@@ -21,37 +21,16 @@ public sealed class BuildAndPushContainersFromDockerfilesAction(
             return true;
         }
 
-        var dockerfileProcessor = Services.GetRequiredKeyedService<IResourceProcessor>(NomadifyConstants.Dockerfile) as DockerfileProcessor;
-
-        CacheContainerDetails(dockerfileProcessor);
-
         if (CurrentState.NoBuild == true)
         {
             Logger.MarkupLine("[bold]Skipping build and push action as requested.[/]");
             return true;
         }
 
+        var dockerfileProcessor = Services.GetRequiredKeyedService<IResourceProcessor>(NomadifyConstants.Dockerfile) as DockerfileProcessor;
         await PerformBuildAndPushes(dockerfileProcessor);
 
         return true;
-    }
-
-    private void CacheContainerDetails(DockerfileProcessor? dockerfileProcessor)
-    {
-        if (dockerfileProcessor is null)
-        {
-            return;
-        }
-
-        foreach (var resource in CurrentState.SelectedDockerfileProjectComponents)
-        {
-            dockerfileProcessor.PopulateContainerImageCacheWithImage(resource, new()
-            {
-                Registry = CurrentState.ContainerRegistry,
-                Prefix = CurrentState.ContainerRepositoryPrefix,
-                Tags = CurrentState.ContainerImageTags,
-            });
-        }
     }
 
     private async Task PerformBuildAndPushes(DockerfileProcessor? dockerfileProcessor)

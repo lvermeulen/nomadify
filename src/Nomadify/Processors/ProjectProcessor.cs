@@ -177,7 +177,7 @@ public sealed class ProjectProcessor(IAnsiConsole console, IProcessRunner proces
             var result = new TaskTemplate
             {
                 ServiceName = resource.Key,
-                ServiceNameLiteral = Path.ChangeExtension(Path.GetFileName(projectResource!.Path), ".dll")!,
+                ServiceNameLiteral = Path.ChangeExtension(Path.GetFileName(projectResource.Path), ".dll")!,
                 Driver = "raw_exec",
                 ArtifactSourceUrl = source,
                 StartCommand = string.Empty,

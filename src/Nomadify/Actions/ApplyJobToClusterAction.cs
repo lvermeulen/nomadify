@@ -98,11 +98,11 @@ public sealed class ApplyJobToClusterAction(INomadExecutionService nomadExecutio
 
         var result = new Dictionary<string, ITaskTemplate>();
 
-        foreach (var resource in CurrentState.DaprProjectComponents.Where(x => x.Value is not null && x.Value.Type.Equals(NomadifyConstants.DaprComponent, StringComparison.OrdinalIgnoreCase)))
-        {
-            //TODO: implement?
-            //Logger.MarkupLine($"[red]({NomadifyConstants.Warning}) This is where we handle Dapr component {resource.Key} in the tasks's template section.[/]");
-        }
+        //foreach (var resource in CurrentState.DaprProjectComponents.Where(x => x.Value is not null))
+        //{
+        //    //TODO: implement?
+        //    //Logger.MarkupLine($"[red]({NomadifyConstants.Warning}) This is where we handle Dapr sidecar {resource.Key} in the tasks's template section.[/]");
+        //}
 
         foreach (var resource in CurrentState.SelectedRawExecProjectComponents.Where(x => x.Value is not null))
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Humanizer;
 using Nomad.Abstractions.Components;
 using Nomadify.Extensions;
 using Nomadify.Processors;
@@ -14,8 +15,8 @@ public class SubstituteValuesAspireManifestAction(IServiceProvider serviceProvid
         Logger.WriteRuler("[purple]Handle value and parameter substitution[/]");
 
         var (numberOfBindings, numberOfSubstitutions) = transformer.ProcessEvaluations(CurrentState.LoadedAspireManifestResources);
-        Logger.MarkupLine($"[green]({NomadifyConstants.CheckMark}) Done:[/] {numberOfBindings} bindings have been inserted.");
-        Logger.MarkupLine($"[green]({NomadifyConstants.CheckMark}) Done:[/] {numberOfSubstitutions} substitutions have been applied.");
+        Logger.MarkupLine($"[green]({NomadifyConstants.CheckMark}) Done:[/] {numberOfBindings} {"binding".Pluralize()} inserted.");
+        Logger.MarkupLine($"[green]({NomadifyConstants.CheckMark}) Done:[/] {numberOfSubstitutions} {"substitution".Pluralize()} applied.");
 
         return Task.FromResult(true);
     }

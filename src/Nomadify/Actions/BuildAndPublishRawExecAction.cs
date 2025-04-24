@@ -53,10 +53,10 @@ public class BuildAndPublishRawExecAction(IServiceProvider serviceProvider, IAns
 
         if (CurrentState.HasDapr())
         {
-            Logger.MarkupLine("[bold]Generating files for Dapr components[/]");
+            Logger.MarkupLine("[bold]Generating files for Dapr sidecars[/]");
             foreach (var resourceValue in CurrentState.DaprComponents.Where(x => x.Value is not null).Select(x => x.Value))
             {
-                await DaprComponentProcessor.CreateDaprTemplateAsync(resourceValue, CurrentState.OutputPath!);
+                await DaprComponentProcessor.CreateDaprdTemplateAsync(resourceValue, CurrentState.OutputPath!);
                 Logger.MarkupLine($"[green]({NomadifyConstants.CheckMark}) Done:[/] Generated {CurrentState.OutputPath}/dapr/{resourceValue!.Name}.yaml");
             }
         }

@@ -50,7 +50,6 @@ The Nomad job file will be created in the same folder as the manifest.json file,
 Here's an example replacement values file:
 ```json
 {
-	"PreferredProtocol": "http",
 	"JobDatacenter": "dc1",
 	"JobType": "service",
 	"JobSemVer": "1.2.3",
@@ -82,10 +81,11 @@ Here's an example replacement values file:
 
 ## Roadmap
 * Dapr support
+* Docker compose support
 * Aspire Dashboard support
 
 ## Compatibility
-Nomadify was written for .NET 9.0 and .NET Aspire 9.1, but do try it out with the 8.0 versions of .NET and Aspire and let me know.
+Since Aspire is only supported at its latest version, Nomadify was written for .NET 9.0 and .NET Aspire 9.1, but do try it out with the 8.0 versions of .NET and Aspire and let me know.
 
 ## Thanks
 * [Camel](https://thenounproject.com/icon/camel-4192809/) icon by [Slidicon](https://thenounproject.com/creator/slidicon/) from [The Noun Project](https://thenounproject.com)

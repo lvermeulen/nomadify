@@ -14,7 +14,7 @@ public class ApplyDaprAnnotationsAction(IServiceProvider serviceProvider, IAnsiC
 {
     public override Task<bool> ExecuteAsync()
     {
-        Logger.WriteRuler("[purple]Handling Dapr Components[/]");
+        Logger.WriteRuler("[purple]Handling Dapr Sidecars[/]");
 
         var daprComponents = CurrentState.DaprProjects.ToList();
         if (daprComponents.Count == 0)
